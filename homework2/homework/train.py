@@ -125,6 +125,9 @@ if __name__ == "__main__":
     parser.add_argument("--num_epoch", type=int, default=50)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--seed", type=int, default=2024)
+    parser.add_argument("--hidden_lyrs", type=int,
+     default=[64,64,64,64])
+    
 
     # optional: additional model hyperparamters
     # parser.add_argument("--num_layers", type=int, default=3)

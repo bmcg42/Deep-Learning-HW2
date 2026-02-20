@@ -126,6 +126,9 @@ class MLPClassifierDeep(nn.Module):
           layers_ls.append(nn.Linear(c,lyr))
           layers_ls.append(nn.ReLU())
           c = lyr
+        
+        # Add layer to format output to correct size
+        layers_ls.append(nn.Linear(c,num_classes))
 
         # Compile layers
         self.model = torch.nn.Sequential(*layers_ls)

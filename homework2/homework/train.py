@@ -73,7 +73,7 @@ def train(
             # Calculate accuracy
             pred_labels = out.argmax(dim=1)
             metrics['train_acc'].append(
-                (pred_labels==label).float().item()
+                (pred_labels==label).float().mean().item()
             )
 
             global_step += 1
@@ -89,9 +89,9 @@ def train(
                 out = model(img) 
 
                 # Calculate accuracy
-                pred_labels = out.argmax(dim=0)
+                pred_labels = out.argmax(dim=1)
                 metrics['val_acc'].append(
-                    (pred_labels==label).float().item()
+                    (pred_labels==label).float().mean().item()
                 )
 
         # log average train and val accuracy to tensorboard
@@ -102,7 +102,7 @@ def train(
         logger.add_scalar('val_accuracy',epoch_val_acc,global_step)
 
         # print on first, last, every 10th epoch
-        if epoch == 0 or epoch == num_epoch - 1 or (epoch + 1) % 10 == 0:
+        if epoch == 0 or epoch == num_epoch - 1 or (epoch + 1) % (num_epoch/10) == 0:
             print(
                 f"Epoch {epoch + 1:2d} / {num_epoch:2d}: "
                 f"train_acc={epoch_train_acc:.4f} "

@@ -102,7 +102,7 @@ class MLPClassifierDeep(nn.Module):
         h: int = 64,
         w: int = 64,
         num_classes: int = 6,
-        hidden_lyrs: list = [64,64,64,64]
+        hidden_lyrs: list = [192,128,64,64]
     ):
         """
         An MLP with multiple hidden layers

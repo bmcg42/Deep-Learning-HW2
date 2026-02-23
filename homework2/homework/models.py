@@ -150,6 +150,7 @@ class MLPClassifierDeepResidual(nn.Module):
         h: int = 64,
         w: int = 64,
         num_classes: int = 6,
+        hidden_lyrs: list = [192,128,64,64]
     ):
         """
         Args:
@@ -161,9 +162,39 @@ class MLPClassifierDeepResidual(nn.Module):
             hidden_dim: int, size of hidden layers
             num_layers: int, number of hidden layers
         """
-        super().__init__()
+        class Block(torch.nn.Module): # Define block of layers
+          def __init__(self, in_channels,out_channels):
+              super().__init__()
+              self.conv = torch.nn.Linear(in_channels,out_channels)
+              self.norm = torch.nn.LayerNorm(out_channels)
+              self.relu = torch.nn.ReLU()
+              # Check if skip connection is neccessary
+              if in_channels != out_channels:
+                  self.skip = torch.nn.Linear(in_channels,out_channels)
+              else:
+                  self.skip = torch.nn.Identity()
 
-        raise NotImplementedError("MLPClassifierDeepResidual.__init__() is not implemented")
+          def forward(self,x):
+              y = self.relu(self.norm(self.conv(x)))
+              return  y + self.skip(x)
+
+        super(MLPClassifierDeepResidual, self).__init__()
+        c = 3 * h * w # flattened input length
+        # Create list for layers
+        layers_ls = [torch.nn.Flatten(start_dim=1)] # Flattens image to a vector 1st layer
+        # Create embedding layer
+        embedding = hidden_lyrs.pop(0)
+        layers_ls.append(torch.nn.Linear(c,embedding))
+        c = embedding
+        for s in layers_ls: # Go through each and add a layer
+            layers_ls.append(self.Block(c,s)) # Add entire block at once
+            c = s # save output dim as input for next layer
+
+        # Add layer to format output to correct size
+        layers_ls.append(nn.Linear(c,num_classes))
+
+        # Compile layers
+        self.model = torch.nn.Sequential(*layers_ls)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -173,8 +204,7 @@ class MLPClassifierDeepResidual(nn.Module):
         Returns:
             tensor (b, num_classes) logits
         """
-        raise NotImplementedError("MLPClassifierDeepResidual.forward() is not implemented")
-
+        return self.model(x)
 
 model_factory = {
     "linear": LinearClassifier,

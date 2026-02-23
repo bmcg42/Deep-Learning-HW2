@@ -150,7 +150,7 @@ class MLPClassifierDeepResidual(nn.Module):
         h: int = 64,
         w: int = 64,
         num_classes: int = 6,
-        hidden_lyrs: list = [192,128,64,64]
+        hidden_lyrs: list = [192,128,96,64,64,64]
     ):
         """
         Args:
@@ -183,11 +183,11 @@ class MLPClassifierDeepResidual(nn.Module):
         # Create list for layers
         layers_ls = [torch.nn.Flatten(start_dim=1)] # Flattens image to a vector 1st layer
         # Create embedding layer
-        embedding = hidden_lyrs.pop(0)
+        embedding = hidden_lyrs[0]
         layers_ls.append(torch.nn.Linear(c,embedding))
         c = embedding
-        for s in layers_ls: # Go through each and add a layer
-            layers_ls.append(self.Block(c,s)) # Add entire block at once
+        for s in hidden_lyrs[1:]: # Go through each and add a layer
+            layers_ls.append(Block(c,s)) # Add entire block at once
             c = s # save output dim as input for next layer
 
         # Add layer to format output to correct size

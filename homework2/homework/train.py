@@ -125,6 +125,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_epoch", type=int, default=50)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--seed", type=int, default=2024)
+    parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--hidden_lyrs", type=int,nargs="+",
      default=[64,64,64,64])
     
